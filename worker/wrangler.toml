@@ -1,0 +1,18 @@
+# Pennys Truck - Cloudflare Worker config
+#
+# After you create the D1 database (see BUILD_PLAN Phase 1), paste its
+# database_id below where it says REPLACE_ME.
+
+name = "penneys-truck"
+main = "src/index.js"
+compatibility_date = "2026-07-12"
+
+# The database this Worker can read/write. The Worker code refers to it as `env.DB`.
+[[d1_databases]]
+binding = "DB"
+database_name = "penneys-truck"
+database_id = "45a6c6e8-fab8-46f0-88d9-9f5be9d23446"
+
+# Secrets are NOT stored here. Set them with:
+#   wrangler secret put OWNTRACKS_SECRET
+#   wrangler secret put DRIVER_SECRET

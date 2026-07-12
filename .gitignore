@@ -1,0 +1,11 @@
+# Node / Wrangler
+node_modules/
+.wrangler/
+.dev.vars
+
+# Never commit secrets
+*.env
+.env
+
+# macOS
+.DS_Store
