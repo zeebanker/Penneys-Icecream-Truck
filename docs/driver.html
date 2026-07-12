@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>Penny's Truck - Driver</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream: #FFF3E0;
+    --pink: #FF7AA2;
+    --pink-dark: #E23E75;
+    --mint: #3FC79A;
+    --mint-dark: #1E9E76;
+    --brown: #6B4226;
+    --sun: #FFC94D;
+    --grey: #E7E3DB;
+    --grey-ink: #A29C90;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font-family: 'Fredoka', system-ui, sans-serif;
+    background: var(--cream);
+    background-image: radial-gradient(var(--sun) 8%, transparent 8%),
+                      radial-gradient(var(--pink) 8%, transparent 8%);
+    background-size: 44px 44px;
+    background-position: 0 0, 22px 22px;
+    color: var(--brown);
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 18px 32px;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: #FFFDF9;
+    border: 3px solid #fff;
+    border-radius: 28px;
+    box-shadow: 0 12px 30px rgba(107,66,38,0.14);
+    padding: 26px 20px 28px;
+    margin-top: 8px;
+  }
+  .brand {
+    text-align: center;
+    font-weight: 700;
+    font-size: 27px;
+    letter-spacing: 0.3px;
+    margin: 2px 0 24px;
+  }
+  .brand .cone { font-size: 31px; }
+
+  .btn {
+    width: 100%;
+    border: none;
+    border-radius: 24px;
+    padding: 20px 16px;
+    margin-bottom: 16px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-align: left;
+    background: var(--grey);
+    color: var(--grey-ink);
+    box-shadow: none;
+    transition: transform .08s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn .emoji {
+    font-size: 30px;
+    background: rgba(255,255,255,0.5);
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex: 0 0 auto;
+    filter: grayscale(.5);
+    transition: filter .15s ease;
+  }
+  .btn .label { font-size: 20px; line-height: 1.15; }
+  .btn .byline { font-size: 13px; font-weight: 500; opacity: .9; margin-top: 3px; }
+
+  .btn-share.live {
+    background: var(--mint); color: #fff;
+    box-shadow: 0 8px 18px rgba(30,158,118,.35);
+  }
+  .btn-stop.live {
+    background: var(--pink); color: #fff;
+    box-shadow: 0 8px 18px rgba(226,62,117,.32);
+  }
+  .btn.live .emoji { filter: none; background: rgba(255,255,255,0.42); }
+
+  .statusmsg {
+    text-align: center;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 14.5px;
+    margin: 8px 0 0;
+    min-height: 20px;
+    color: var(--grey-ink);
+  }
+  .statusmsg.on  { color: var(--mint-dark); }
+  .statusmsg.off { color: var(--pink-dark); }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand"><span class="cone">🍦</span> Penny's Truck</div>
+
+    <button class="btn btn-share" id="btnShare" onclick="setSharing(true)">
+      <span class="emoji">📍</span>
+      <span>
+        <div class="label">Share my location</div>
+        <div class="byline">Customers CAN see me</div>
+      </span>
+    </button>
+
+    <button class="btn btn-stop" id="btnStop" onclick="setSharing(false)">
+      <span class="emoji">🛑</span>
+      <span>
+        <div class="label">Stop sharing</div>
+        <div class="byline">Customers CANNOT see me</div>
+      </span>
+    </button>
+
+    <p class="statusmsg" id="statusMsg">Checking your status&hellip;</p>
+  </div>
+
+<script>
+  var API = "https://penneys-truck.zeebanker.workers.dev";
+  var DRIVER_SECRET = "93ce530c4ef46479a2ae77606831e00b";
+
+  function paint(isOn) {
+    var share = document.getElementById("btnShare");
+    var stop = document.getElementById("btnStop");
+    var msg = document.getElementById("statusMsg");
+    if (isOn) {
+      // Sharing now: the live/next action is STOP.
+      stop.classList.add("live");
+      share.classList.remove("live");
+      msg.className = "statusmsg on";
+      msg.textContent = "You are sharing your location";
+    } else {
+      // Hidden now: the live/next action is SHARE.
+      share.classList.add("live");
+      stop.classList.remove("live");
+      msg.className = "statusmsg off";
+      msg.textContent = "You are NOT sharing your location";
+    }
+  }
+
+  async function loadState() {
+    try {
+      var r = await fetch(API + "/state", { cache: "no-store" });
+      var d = await r.json();
+      paint(d.sharing === 1);
+    } catch (e) {
+      var msg = document.getElementById("statusMsg");
+      msg.className = "statusmsg off";
+      msg.textContent = "Can't reach the truck server";
+    }
+  }
+
+  async function setSharing(on) {
+    var path = on ? "/share" : "/disable";
+    try {
+      var r = await fetch(API + path + "?secret=" + encodeURIComponent(DRIVER_SECRET), { method: "POST" });
+      if (!r.ok) throw new Error("bad");
+      paint(on);
+    } catch (e) {
+      var msg = document.getElementById("statusMsg");
+      msg.className = "statusmsg off";
+      msg.textContent = "Something went wrong. Try again.";
+    }
+  }
+
+  loadState();
+</script>
+</body>
+</html>

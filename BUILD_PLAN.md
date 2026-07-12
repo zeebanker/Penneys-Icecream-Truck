@@ -138,3 +138,15 @@ Prove it works before showing Penny.
 - **Staleness:** not handled at this stage. Sharing on = show the location however old it is.
 - **Parked/idle truck:** shown with a bouncing "serving" truck icon (driven by the `moving` flag), not hidden or flagged as idle. Sharing stays on until Penny taps DISABLE.
 - **"Last updated" wording:** relative time on the customer's device ("Updated N minutes ago"); store `updated_at` as UTC. No timezone math.
+
+---
+
+## Before go-live (deferred to-dos)
+
+Not needed for dev/testing among Pat and Penny; must be done before the public launch.
+
+- **Approximate-location privacy.** Penny is concerned customers will swarm her exact spot and slow her down. Before go-live, show only an approximate neighborhood (about a 1 mile x 1 mile area) with copy like "Penny's in this neighborhood right now," not a precise pin.
+  - This MUST be enforced in the Worker, not just the map. `GET /state` should round the coordinates (e.g. snap to a ~0.01 deg / ~0.7 mile grid) so the exact location never leaves the server. Fuzzing only on the map page is false privacy, because anyone can read the exact coordinates from the network response.
+  - Then the customer map draws a soft ~0.5 mile-radius area (not an exact marker) and zooms to neighborhood level instead of street level.
+  - (Prototyped and reverted 2026-07-12; keep exact location for now.)
+- **Driver auth at handover.** Swap the hard-coded driver secret for the passphrase-in-localStorage approach (see Security note / Settled decisions).

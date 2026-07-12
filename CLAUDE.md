@@ -60,11 +60,19 @@ Truck icon reflects movement (parents' view only, display-only):
 - **Dev stage (now):** the driver secret is hard-coded in the page and served from GitHub Pages. Toggling is done by Pat from his own phone. Acceptable while only Pat has the link.
 - **At handover to Penny:** replace the hard-coded secret with a passphrase-prompt approach (Penny types a code once, it's stored in the phone's localStorage and sent with each toggle; the secret is never written into the public HTML source). Keep the driver page at an unguessable URL as a second layer.
 
-## Current status
+## Current status (2026-07-12)
 
-- **Phase 1 (Cloudflare backend): DONE and live-tested (2026-07-12).** Worker deployed at `penneys-truck.zeebanker.workers.dev`; D1 database `penneys-truck` created and schema applied; both secrets (`OWNTRACKS_SECRET`, `DRIVER_SECRET`) set. All four endpoints pass their done-when tests, including the privacy rule (sharing off returns no coordinates) and moving/stationary detection (50m threshold).
-- HTML mockups for both the driver page and the customer map page are done (from an earlier session; not yet saved into `docs/`).
-- **Next: Phase 2** (point OwnTracks on the phone at the live `/owntracks` endpoint), then Phase 3 (driver page) and Phase 4 (customer map). Build and test on Pat's own phone before demoing to Penny.
+- **Phase 1 (Cloudflare backend): DONE, live.** Worker at `penneys-truck.zeebanker.workers.dev`; D1 `penneys-truck` with schema; both secrets set. All four endpoints pass their done-when tests (privacy rule + 50m moving/stationary detection).
+- **Phase 2 (OwnTracks): DONE, live-verified.** Pat's iPhone posts real GPS through to the Worker (mode = HTTP, secret in the URL as `?secret=`, monitoring = Move, interval 180s, Location = Always + Precise). Confirmed moving:1 when driving and moving:0 when parked.
+- **Phase 3 (driver page): DONE, live-tested.** `docs/driver.html` - two big buttons wired to `/share` and `/disable`, live status from `/state`. Design approved.
+- **Phase 4 (customer map): DONE, live-tested.** `docs/index.html` - Leaflet + OSM, 30s refresh, Option-3 pink map-pin + cone + "Penny!" label, bouncing (serving) vs nudging (moving), relative "updated N ago", friendly "Penny isn't out right now" curtain when off. Design approved.
+- **Next: Phase 5 (field test).** Real drive test on the road: enable GitHub Pages, full loop on Pat's phone, then demo to Penny. See BUILD_PLAN Phase 5.
+- **Before go-live to-dos** (see BUILD_PLAN "Before go-live"): approximate-location privacy (server-side coord rounding + neighborhood area on the map) and the driver-auth passphrase swap.
+
+## Live dev secrets (dev stage only; rotate before handover)
+
+- Worker URL: `https://penneys-truck.zeebanker.workers.dev`
+- `OWNTRACKS_SECRET` and `DRIVER_SECRET` are set in Cloudflare; `DRIVER_SECRET` is currently hard-coded in `docs/driver.html` (dev-stage trade-off).
 
 ## Working preferences and design rules
 
