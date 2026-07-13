@@ -15,19 +15,19 @@ Note: GPS movement MAY be used to pick the customer-facing truck icon (see "Cust
 
 ## Architecture
 
-Data flow: OwnTracks (phone GPS; iPhone for testing, Penny's Android at handover) -> Cloudflare Worker API -> Cloudflare D1 database -> two GitHub Pages HTML pages.
+Data flow: OwnTracks (phone GPS; iPhone for testing, Penny's Android at handover) -> Cloudflare Worker API -> Cloudflare D1 database -> two static HTML pages on Cloudflare Pages.
 
 - Map centered on Minneapolis / St. Paul, MN.
 - Map built with Leaflet.js + OpenStreetMap.
 - OwnTracks reports location every 3 minutes.
-- No custom domain in this phase.
+- Live at the custom domain `awhaleofatreat.com` (see Current status).
 
 ## Infrastructure (locked in)
 
-- GitHub repo: `github.com/zeebanker/penneys-truck`
+- GitHub repo: `github.com/zeebanker/Penneys-Icecream-Truck` (public, branch `master`) - version control only
 - Cloudflare Worker: `penneys-truck.zeebanker.workers.dev` (deployed and live)
 - Cloudflare D1 database for storing location updates
-- GitHub Pages hosts the two HTML pages
+- Cloudflare Pages project `awhaleofatreat` hosts the two HTML pages, live at `awhaleofatreat.com` (old GitHub Pages retired 2026-07-13)
 
 ## Driver page design (approved)
 
