@@ -3,77 +3,71 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Penny's Truck</title>
+<title>A Whale of a Treat!</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   :root {
-    --cream: #FFF3E0;
-    --pink: #FF7AA2;
-    --pink-dark: #E23E75;
-    --mint: #3FC79A;
-    --mint-dark: #1E9E76;
-    --brown: #6B4226;
-    --sun: #FFC94D;
+    --sky: #E9F3FC;
+    --whale: #3E82C6;
+    --whale-dark: #295F97;
+    --ink: #21406A;
+    --green: #1E9E76;
+    --slate: #5A7392;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
-  body { font-family: 'Fredoka', system-ui, sans-serif; color: var(--brown); }
-  #map { position: absolute; inset: 0; z-index: 1; background: var(--cream); }
+  body { font-family: 'Fredoka', system-ui, sans-serif; color: var(--ink); }
+  #map { position: absolute; inset: 0; z-index: 1; background: var(--sky); }
 
   .topbar {
     position: absolute; top: 0; left: 0; right: 0; z-index: 500;
-    background: #FFFDF9;
-    border-bottom: 3px solid #fff;
-    box-shadow: 0 4px 14px rgba(107,66,38,0.12);
-    padding: 12px 16px 12px;
+    background: #FFFFFF;
+    border-bottom: 3px solid #D8EAFB;
+    box-shadow: 0 4px 14px rgba(41,95,151,0.14);
+    padding: 8px 16px 9px;
     text-align: center;
   }
-  .topbar .brand { font-weight: 700; font-size: 21px; }
-  .topbar .brand .cone { font-size: 23px; }
-  .topbar .status { font-size: 13.5px; font-weight: 500; margin-top: 2px; min-height: 18px; }
-  .topbar .status.on  { color: var(--mint-dark); }
-  .topbar .status.off { color: var(--pink-dark); }
+  .topbar .logo { height: 52px; width: auto; display: block; margin: 0 auto; }
+  .topbar .status { font-size: 13.5px; font-weight: 500; margin-top: 3px; min-height: 18px; }
+  .topbar .status.on  { color: var(--green); }
+  .topbar .status.off { color: var(--slate); }
 
   .curtain {
     position: absolute; inset: 0; z-index: 800;
     display: none;
     align-items: center; justify-content: center;
     padding: 24px;
-    background: rgba(255,243,224,0.86);
+    background: rgba(233,243,252,0.88);
     backdrop-filter: blur(2px);
   }
   .curtain.show { display: flex; }
   .curtain .msg {
-    background: #FFFDF9;
-    border: 3px solid #fff;
+    background: #FFF2F6;
+    border: 3px solid #FFC7D9;
     border-radius: 26px;
-    box-shadow: 0 12px 30px rgba(107,66,38,0.16);
-    padding: 30px 26px;
+    box-shadow: 0 12px 30px rgba(226,62,117,0.18);
+    padding: 26px 26px 30px;
     text-align: center;
     max-width: 340px;
   }
-  .curtain .big-emoji { font-size: 58px; line-height: 1; }
-  .curtain h1 { font-size: 22px; font-weight: 700; margin: 14px 0 6px; }
-  .curtain p { font-size: 15px; font-weight: 500; color: #A9825F; margin: 0; }
+  .curtain .whale-img { width: 120px; height: auto; display: block; margin: 0 auto 6px; }
+  .curtain h1 { font-size: 22px; font-weight: 700; margin: 8px 0 6px; }
+  .curtain p { font-size: 15px; font-weight: 500; color: var(--slate); margin: 0; }
 
   .tk { display: flex; flex-direction: column; align-items: center; }
   .tk-pill {
-    background: var(--pink); color: #fff;
+    background: var(--whale); color: #fff;
     font-weight: 600; font-size: 12.5px; white-space: nowrap;
-    padding: 3px 12px; border-radius: 20px; margin-bottom: 4px;
-    box-shadow: 0 4px 10px rgba(226,62,117,.32);
+    padding: 3px 12px; border-radius: 20px; margin-bottom: 2px;
+    box-shadow: 0 4px 10px rgba(41,95,151,.34);
   }
-  .tk-pin {
-    width: 50px; height: 50px;
-    background: var(--pink); border: 3px solid #fff;
-    border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 7px 14px rgba(107,66,38,.3);
+  .tk-whale {
+    width: 52px; height: auto; display: block;
+    filter: drop-shadow(0 5px 5px rgba(41,95,151,.35));
   }
-  .tk-pin span { transform: rotate(45deg); font-size: 23px; line-height: 1; }
   .tk.serving { animation: bounce 1.1s ease-in-out infinite; }
   .tk.moving  { animation: nudge 0.9s ease-in-out infinite; }
   @keyframes bounce {
@@ -92,13 +86,13 @@
   <div id="map"></div>
 
   <div class="topbar">
-    <div class="brand"><span class="cone">🍦</span> Penny's Truck</div>
+    <img class="logo" src="whale-logo.png" alt="A Whale of a Treat!" />
     <div class="status off" id="status">Looking for Penny&hellip;</div>
   </div>
 
   <div class="curtain" id="curtain">
     <div class="msg">
-      <div class="big-emoji">🍦</div>
+      <img class="whale-img" src="whale-pin.png" alt="" />
       <h1 id="curtainTitle">Penny isn't out right now</h1>
       <p id="curtainText">Check back later to see where Penny is on the map</p>
     </div>
@@ -123,9 +117,9 @@
     var cls = moving ? "tk moving" : "tk serving";
     return L.divIcon({
       className: "tk-wrap",
-      html: '<div class="' + cls + '"><div class="tk-pill">Penny!</div><div class="tk-pin"><span>🍦</span></div></div>',
-      iconSize: [80, 82],
-      iconAnchor: [40, 78]
+      html: '<div class="' + cls + '"><div class="tk-pill">Penny!</div><img class="tk-whale" src="whale-pin.png" alt="Penny" style="width:52px;height:auto;"></div>',
+      iconSize: [90, 98],
+      iconAnchor: [45, 94]
     });
   }
 

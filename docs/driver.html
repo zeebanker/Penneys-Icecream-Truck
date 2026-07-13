@@ -3,32 +3,33 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-<title>Penny's Truck - Driver</title>
+<title>A Whale of a Treat! - Driver</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    --cream: #FFF3E0;
-    --pink: #FF7AA2;
-    --pink-dark: #E23E75;
+    --sky: #E9F3FC;
+    --whale: #3E82C6;
+    --whale-dark: #295F97;
+    --ink: #21406A;
     --mint: #3FC79A;
     --mint-dark: #1E9E76;
-    --brown: #6B4226;
-    --sun: #FFC94D;
-    --grey: #E7E3DB;
-    --grey-ink: #A29C90;
+    --pink: #FF7AA2;
+    --pink-dark: #E23E75;
+    --grey: #E4EAF1;
+    --grey-ink: #90A0B3;
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; height: 100%; }
   body {
     font-family: 'Fredoka', system-ui, sans-serif;
-    background: var(--cream);
-    background-image: radial-gradient(var(--sun) 8%, transparent 8%),
-                      radial-gradient(var(--pink) 8%, transparent 8%);
+    background: var(--sky);
+    background-image: radial-gradient(var(--whale) 8%, transparent 8%),
+                      radial-gradient(#BFD8F2 8%, transparent 8%);
     background-size: 44px 44px;
     background-position: 0 0, 22px 22px;
-    color: var(--brown);
+    color: var(--ink);
     min-height: 100%;
     display: flex;
     flex-direction: column;
@@ -38,21 +39,20 @@
   .card {
     width: 100%;
     max-width: 420px;
-    background: #FFFDF9;
-    border: 3px solid #fff;
+    background: #FFF2F6;
+    border: 3px solid #FFC7D9;
     border-radius: 28px;
-    box-shadow: 0 12px 30px rgba(107,66,38,0.14);
-    padding: 26px 20px 28px;
+    box-shadow: 0 12px 30px rgba(226,62,117,0.14);
+    padding: 22px 20px 28px;
     margin-top: 8px;
   }
-  .brand {
-    text-align: center;
-    font-weight: 700;
-    font-size: 27px;
-    letter-spacing: 0.3px;
-    margin: 2px 0 24px;
+  .brand-logo {
+    display: block;
+    width: 210px;
+    max-width: 78%;
+    height: auto;
+    margin: 4px auto 22px;
   }
-  .brand .cone { font-size: 31px; }
 
   .btn {
     width: 100%;
@@ -67,22 +67,21 @@
     align-items: center;
     gap: 14px;
     text-align: left;
-    background: var(--grey);
+    background: #F3E3EA;
     color: var(--grey-ink);
     box-shadow: none;
     transition: transform .08s ease, background .15s ease, color .15s ease, box-shadow .15s ease;
   }
   .btn:active { transform: scale(0.97); }
   .btn .emoji {
-    font-size: 30px;
-    background: rgba(255,255,255,0.5);
+    background: rgba(255,255,255,0.72);
     width: 56px; height: 56px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     flex: 0 0 auto;
-    filter: grayscale(.5);
-    transition: filter .15s ease;
+    transition: background .15s ease;
   }
+  .btn .emoji svg { width: 32px; height: 32px; display: block; }
   .btn .label { font-size: 20px; line-height: 1.15; }
   .btn .byline { font-size: 13px; font-weight: 500; opacity: .9; margin-top: 3px; }
 
@@ -94,7 +93,7 @@
     background: var(--pink); color: #fff;
     box-shadow: 0 8px 18px rgba(226,62,117,.32);
   }
-  .btn.live .emoji { filter: none; background: rgba(255,255,255,0.42); }
+  .btn.live .emoji { background: rgba(255,255,255,0.9); }
 
   .statusmsg {
     text-align: center;
@@ -111,10 +110,10 @@
 </head>
 <body>
   <div class="card">
-    <div class="brand"><span class="cone">🍦</span> Penny's Truck</div>
+    <img class="brand-logo" src="whale-logo.png" alt="A Whale of a Treat!" />
 
     <button class="btn btn-share" id="btnShare" onclick="setSharing(true)">
-      <span class="emoji">📍</span>
+      <span class="emoji"><svg viewBox="0 0 32 32"><path d="M16 4c-5 0-9 3.6-9 8.6 0 6 9 15.4 9 15.4s9-9.4 9-15.4c0-5-4-8.6-9-8.6z" fill="#fff" stroke="#0f3b2c" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="12.6" r="3.3" fill="#1E9E76"/></svg></span>
       <span>
         <div class="label">Share my location</div>
         <div class="byline">Customers CAN see me</div>
@@ -122,7 +121,7 @@
     </button>
 
     <button class="btn btn-stop" id="btnStop" onclick="setSharing(false)">
-      <span class="emoji">🛑</span>
+      <span class="emoji"><svg viewBox="0 0 32 32"><polygon points="11,3 21,3 29,11 29,21 21,29 11,29 3,21 3,11" fill="#E23E75" stroke="#7a1236" stroke-width="2.2" stroke-linejoin="round"/><rect x="9" y="14.6" width="14" height="2.8" rx="1.4" fill="#fff"/></svg></span>
       <span>
         <div class="label">Stop sharing</div>
         <div class="byline">Customers CANNOT see me</div>

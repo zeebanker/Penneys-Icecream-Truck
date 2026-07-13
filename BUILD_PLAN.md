@@ -138,6 +138,7 @@ Prove it works before showing Penny.
 - **Staleness:** not handled at this stage. Sharing on = show the location however old it is.
 - **Parked/idle truck:** shown with a bouncing "serving" truck icon (driven by the `moving` flag), not hidden or flagged as idle. Sharing stays on until Penny taps DISABLE.
 - **"Last updated" wording:** relative time on the customer's device ("Updated N minutes ago"); store `updated_at` as UTC. No timezone math.
+- **Accurate location, no fuzzing (decided 2026-07-13).** Penny wants customers to see her exact spot; the approximate-neighborhood privacy idea is dropped. The map shows the precise pin. (The earlier prototype was already reverted.)
 
 ---
 
@@ -145,8 +146,25 @@ Prove it works before showing Penny.
 
 Not needed for dev/testing among Pat and Penny; must be done before the public launch.
 
-- **Approximate-location privacy.** Penny is concerned customers will swarm her exact spot and slow her down. Before go-live, show only an approximate neighborhood (about a 1 mile x 1 mile area) with copy like "Penny's in this neighborhood right now," not a precise pin.
-  - This MUST be enforced in the Worker, not just the map. `GET /state` should round the coordinates (e.g. snap to a ~0.01 deg / ~0.7 mile grid) so the exact location never leaves the server. Fuzzing only on the map page is false privacy, because anyone can read the exact coordinates from the network response.
-  - Then the customer map draws a soft ~0.5 mile-radius area (not an exact marker) and zooms to neighborhood level instead of street level.
-  - (Prototyped and reverted 2026-07-12; keep exact location for now.)
+- **Rebrand to "A Whale of a Treat!"** The truck is a real business: **A Whale of a Treat!** at `www.awhaleofatreat.com`, blue whale-popsicle logo. Both pages should carry the real name, logo, and matching colors instead of the "Penny's Truck" / ice-cream-cone placeholder theme. Option to serve the app from a custom subdomain of the owned domain (e.g. `track.awhaleofatreat.com`) and/or link it from the main site. (Design first: interactive mockups for review before building.)
 - **Driver auth at handover.** Swap the hard-coded driver secret for the passphrase-in-localStorage approach (see Security note / Settled decisions).
+- **Rotate the dev secrets** (`OWNTRACKS_SECRET`, `DRIVER_SECRET`) before handover.
+- **OwnTracks on Penny's Android phone.** Penny's phone is Android; Pat's iPhone stays the test device until handover. OwnTracks is cross-platform, so at handover configure OwnTracks on Android (HTTP mode, same `/owntracks` URL with the secret; Android has its own background-location and battery-optimization settings to allow).
+
+---
+
+## Future option: onboard OBD-II GPS tracker (not now)
+
+An always-powered OBD-II GPS tracker in the truck could replace the phone as the LOCATION source. Only worth it if the phone proves unreliable (dead battery, app killed, Penny forgets to open it). It does NOT remove the phone: Penny still needs the driver page for the Share/Hide toggle. Our architecture already separates "location in" (`/owntracks`) from "sharing toggle" (`/share`/`/disable`), so only the location source changes; the toggle and the sharing gate stay the same. Core principle still holds: ignition/motion never auto-shares; only Penny's tap does.
+
+Recommended stack (researched 2026-07-12; verify current specs/coverage before buying):
+
+- **Tracker:** Teltonika, open Codec protocol, points at your own server, highly configurable. Prefer **FMC003 (LTE Cat-1)** over FMM003 (Cat-M1) because the device is OBD-powered (low-power Cat-M1 gives no benefit here) and Cat-1 tends to have broader US coverage. Get the North America LTE band variant. (Queclink GL300/GL320 are not OBD plug-in, so they lose the always-powered benefit.)
+- **SIM:** Hologram (metered, great US coverage/DX, ~$1-2/mo, no data ceiling) for zero worry, OR 1NCE (~$10 for 10 years / 500 MB, likely enough) IF its Cat-M1/US carrier coverage checks out in Penny's actual service area.
+
+CRITICAL architectural gap: **Teltonika sends binary over raw TCP/UDP (Codec 8), and a Cloudflare Worker only accepts HTTP inbound.** The tracker CANNOT post to `/owntracks` directly. A protocol bridge is required:
+
+- **Flespi** (recommended): a service that terminates the Teltonika protocol and forwards each position out as a webhook/MQTT to a new Worker endpoint. Cheap/free tier for one device, minimal code.
+- Or a tiny self-hosted TCP parser (a ~$5/mo VPS running an open-source Codec 8 parser) that POSTs to the Worker. Cheaper long-term but you own a server.
+
+Net new work if pursued: buy device + SIM, set up the bridge, add one Worker endpoint (e.g. `/obd`) that parses the bridge's payload and writes to D1. Rough cost: ~$70-95 device + ~$1-2/mo SIM + Flespi low/free tier.

@@ -15,7 +15,7 @@ Note: GPS movement MAY be used to pick the customer-facing truck icon (see "Cust
 
 ## Architecture
 
-Data flow: OwnTracks (iOS GPS) -> Cloudflare Worker API -> Cloudflare D1 database -> two GitHub Pages HTML pages.
+Data flow: OwnTracks (phone GPS; iPhone for testing, Penny's Android at handover) -> Cloudflare Worker API -> Cloudflare D1 database -> two GitHub Pages HTML pages.
 
 - Map centered on Minneapolis / St. Paul, MN.
 - Map built with Leaflet.js + OpenStreetMap.
@@ -66,8 +66,8 @@ Truck icon reflects movement (parents' view only, display-only):
 - **Phase 2 (OwnTracks): DONE, live-verified.** Pat's iPhone posts real GPS through to the Worker (mode = HTTP, secret in the URL as `?secret=`, monitoring = Move, interval 180s, Location = Always + Precise). Confirmed moving:1 when driving and moving:0 when parked.
 - **Phase 3 (driver page): DONE, live-tested.** `docs/driver.html` - two big buttons wired to `/share` and `/disable`, live status from `/state`. Design approved.
 - **Phase 4 (customer map): DONE, live-tested.** `docs/index.html` - Leaflet + OSM, 30s refresh, Option-3 pink map-pin + cone + "Penny!" label, bouncing (serving) vs nudging (moving), relative "updated N ago", friendly "Penny isn't out right now" curtain when off. Design approved.
-- **Next: Phase 5 (field test).** Real drive test on the road: enable GitHub Pages, full loop on Pat's phone, then demo to Penny. See BUILD_PLAN Phase 5.
-- **Before go-live to-dos** (see BUILD_PLAN "Before go-live"): approximate-location privacy (server-side coord rounding + neighborhood area on the map) and the driver-auth passphrase swap.
+- **Phase 5 (field test): DONE (2026-07-12).** Live on GitHub Pages; real drive test passed on Pat's phone, the customer map updates the location in real time. All five build phases complete.
+- **Before go-live to-dos** (see BUILD_PLAN "Before go-live"), needed before demoing/handing to Penny: **rebrand to "A Whale of a Treat!"** (real business at `www.awhaleofatreat.com`, blue whale-popsicle logo; both pages get the real name/logo/colors, optional `track.awhaleofatreat.com` subdomain), the driver-auth passphrase swap, rotate the dev secrets, and configure OwnTracks on Penny's Android phone at handover. **Location fuzzing is dropped: Penny wants exact location shown (decided 2026-07-13).**
 
 ## Live dev secrets (dev stage only; rotate before handover)
 
