@@ -148,9 +148,9 @@ Not needed for dev/testing among Pat and Penny; must be done before the public l
 
 - **Rebrand to "A Whale of a Treat!" - DONE (2026-07-13).** Both pages carry the whale logo, blue palette, and soft-pink boxes; whale-popsicle map marker. Assets in `docs/`.
 - **Custom domain - DONE (2026-07-13).** App is live at `awhaleofatreat.com` (and `/driver`) on Cloudflare Pages (project `awhaleofatreat`, direct wrangler deploy of `docs/`). See CLAUDE.md for the deploy command.
-- **Turn off the old GitHub Pages site.** Repo Settings -> Pages -> Source: None, so the app isn't also live at the old github.io URL.
-- **Driver auth at handover.** Swap the hard-coded driver secret for the passphrase-in-localStorage approach (see Security note / Settled decisions). More important now that the app is on a memorable public domain (`/driver` is guessable).
-- **Rotate the dev secrets** (`OWNTRACKS_SECRET`, `DRIVER_SECRET`) before handover.
+- **Turn off the old GitHub Pages site - DONE (2026-07-13).** Old github.io URLs now 404; app lives only at the custom domain.
+- **Driver auth passphrase swap - DONE (2026-07-13).** No secret in `driver.html`; a code gate saves the code on the phone and sends it via the `X-Secret` header. Worker gained `POST /verify` for instant feedback. `DRIVER_SECRET` rotated to `whale2026`. At handover, swap `whale2026` for Penny's own code with one `wrangler secret put DRIVER_SECRET` (no code change).
+- **Rotate `OWNTRACKS_SECRET`** before handover (`DRIVER_SECRET` already rotated). Rotating OwnTracks means updating the URL in the OwnTracks app too.
 - **OwnTracks on Penny's Android phone.** Penny's phone is Android; Pat's iPhone stays the test device until handover. OwnTracks is cross-platform, so at handover configure OwnTracks on Android (HTTP mode, same `/owntracks` URL with the secret; Android has its own background-location and battery-optimization settings to allow).
 
 ---

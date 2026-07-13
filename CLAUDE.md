@@ -57,8 +57,8 @@ Truck icon reflects movement (parents' view only, display-only):
 
 ## Auth (dev stage vs. handover)
 
-- **Dev stage (now):** the driver secret is hard-coded in the page and served from GitHub Pages. Toggling is done by Pat from his own phone. Acceptable while only Pat has the link.
-- **At handover to Penny:** replace the hard-coded secret with a passphrase-prompt approach (Penny types a code once, it's stored in the phone's localStorage and sent with each toggle; the secret is never written into the public HTML source). Keep the driver page at an unguessable URL as a second layer.
+- **Passphrase gate: DONE (2026-07-13).** The driver secret is NOT in the page source. `driver.html` shows an "Enter your driver code" gate; the code is saved in `localStorage` (`awot_driver_code`) and sent on `/share` `/disable` via the **`X-Secret` header** (not the URL). Worker `POST /verify` gives instant right/wrong feedback; a 401 clears the saved code and re-prompts; a "Change code" link clears it. `DRIVER_SECRET` = `whale2026` (dev value).
+- **At handover to Penny:** swap `whale2026` for Penny's own code with one `wrangler secret put DRIVER_SECRET` (no code change); she types it once on her Android.
 
 ## Current status (2026-07-12)
 
@@ -68,13 +68,16 @@ Truck icon reflects movement (parents' view only, display-only):
 - **Phase 4 (customer map): DONE, live-tested.** `docs/index.html` - Leaflet + OSM, 30s refresh, Option-3 pink map-pin + cone + "Penny!" label, bouncing (serving) vs nudging (moving), relative "updated N ago", friendly "Penny isn't out right now" curtain when off. Design approved.
 - **Phase 5 (field test): DONE (2026-07-12).** Live on GitHub Pages; real drive test passed on Pat's phone, the customer map updates the location in real time. All five build phases complete.
 - **Rebrand to "A Whale of a Treat!": DONE, live (2026-07-13).** Both pages carry the whale logo, a blue "ocean" palette, and soft-pink boxes; the customer map uses the whale-popsicle as the marker (stick tip = the spot); driver buttons use custom SVG icons (green location pin / red stop sign). Assets: `docs/whale-logo.png`, `docs/whale-pin.png` (both background-removed from `docs/whale.jpg`). Pushed and confirmed live on GitHub Pages.
+- **Home-screen icon (Add to Home Screen): DONE, live (2026-07-13).** Customer map has `manifest.webmanifest` (name "A Whale of a Treat!", short_name/label **"Penny"**, `display: standalone`, theme `#3E82C6`, bg `#FFF2F6`) + `apple-touch-icon.png` (180) + `favicon-32.png` + `icon-192.png`/`icon-512.png` (maskable). Icon art = the whale-popsicle on a **soft-pink** tile (`#FFE0EA`), generated from `whale-pin.png` (Pillow, `docs/` files). iOS opens in Safari from the icon (NOT `apple-mobile-web-app-capable`, to avoid the standalone status-bar overlap on the top logo). Driver page carries the same icon with label "Penny Driver" (no manifest) so Penny can add her toggle page too.
 - **Custom domain `awhaleofatreat.com`: DONE, live (2026-07-13).** Front-end moved off GitHub Pages to a **Cloudflare Pages** project named **`awhaleofatreat`** (direct wrangler upload of `docs/`, NOT git-connected). Custom domains `awhaleofatreat.com` + `www.awhaleofatreat.com` attached with auto SSL (domain is in the same Cloudflare account). URLs: `awhaleofatreat.com` = customer map, `awhaleofatreat.com/driver` = driver page (Pages clean URLs; `/driver.html` 308-redirects to `/driver`). Deploy command (run from repo root, I run it): `npx wrangler pages deploy docs --project-name awhaleofatreat --branch master --commit-dirty=true`. Worker backend unchanged; CORS is `*` so the new origin reaches it fine.
-- **Before go-live to-dos** (see BUILD_PLAN "Before go-live"), needed before demoing/handing to Penny: turn OFF the old GitHub Pages (repo Settings -> Pages -> Source: None) so there aren't two live copies; the driver-auth passphrase swap; rotate the dev secrets; and configure OwnTracks on Penny's Android phone at handover. **Location fuzzing is dropped: Penny wants exact location shown (decided 2026-07-13).**
+- **Old GitHub Pages: OFF (2026-07-13).** Repo Settings -> Pages -> Source: None; old github.io URLs 404. App lives only at the custom domain.
+- **Driver-auth passphrase swap: DONE, live-tested (2026-07-13).** See the Auth section above.
+- **Before go-live to-dos remaining:** rotate `OWNTRACKS_SECRET` (driver secret already rotated to `whale2026`); swap `whale2026` for Penny's own code at handover; configure OwnTracks on Penny's Android phone at handover. **Location fuzzing is dropped: Penny wants exact location shown (decided 2026-07-13).**
 
 ## Live dev secrets (dev stage only; rotate before handover)
 
 - Worker URL: `https://penneys-truck.zeebanker.workers.dev`
-- `OWNTRACKS_SECRET` and `DRIVER_SECRET` are set in Cloudflare; `DRIVER_SECRET` is currently hard-coded in `docs/driver.html` (dev-stage trade-off).
+- `OWNTRACKS_SECRET` and `DRIVER_SECRET` are set in Cloudflare. `DRIVER_SECRET` = `whale2026` (rotated 2026-07-13; no longer in the page source, entered via the driver-page code gate). `OWNTRACKS_SECRET` still original; rotate before handover (also update the URL in the OwnTracks app).
 
 ## Working preferences and design rules
 
