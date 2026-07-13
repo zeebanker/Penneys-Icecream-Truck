@@ -54,6 +54,26 @@
     margin: 4px auto 22px;
   }
 
+  /* ---- passphrase gate ---- */
+  .gate { text-align: center; padding: 2px 2px 4px; }
+  .gate-title { font-size: 20px; font-weight: 700; margin: 4px 0 4px; color: var(--ink); }
+  .gate-sub { font-size: 13.5px; font-weight: 500; color: var(--whale-dark); margin: 0 0 18px; }
+  .code-input {
+    width: 100%; font-family: inherit; font-size: 18px; font-weight: 600; text-align: center;
+    padding: 14px 14px; border: 3px solid #FFC7D9; border-radius: 18px;
+    background: #fff; color: var(--ink); outline: none;
+  }
+  .code-input:focus { border-color: var(--whale); }
+  .gate-btn {
+    width: 100%; margin-top: 14px; border: none; border-radius: 20px; padding: 16px;
+    font-family: inherit; font-weight: 600; font-size: 18px; color: #fff; background: var(--whale);
+    box-shadow: 0 8px 18px rgba(41,95,151,.30); cursor: pointer;
+  }
+  .gate-btn:active { transform: scale(.98); }
+  .gate-btn:disabled { opacity: .65; }
+  .gate-err { min-height: 20px; margin: 12px 0 0; font-size: 14px; font-weight: 600; color: var(--pink-dark); }
+
+  /* ---- controls ---- */
   .btn {
     width: 100%;
     border: none;
@@ -106,39 +126,112 @@
   }
   .statusmsg.on  { color: var(--mint-dark); }
   .statusmsg.off { color: var(--pink-dark); }
+
+  .change-code { text-align: center; margin: 16px 0 0; }
+  .change-code a { color: var(--whale-dark); font-size: 13px; font-weight: 500; text-decoration: underline; cursor: pointer; }
 </style>
 </head>
 <body>
   <div class="card">
     <img class="brand-logo" src="whale-logo.png" alt="A Whale of a Treat!" />
 
-    <button class="btn btn-share" id="btnShare" onclick="setSharing(true)">
-      <span class="emoji"><svg viewBox="0 0 32 32"><path d="M16 4c-5 0-9 3.6-9 8.6 0 6 9 15.4 9 15.4s9-9.4 9-15.4c0-5-4-8.6-9-8.6z" fill="#fff" stroke="#0f3b2c" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="12.6" r="3.3" fill="#1E9E76"/></svg></span>
-      <span>
-        <div class="label">Share my location</div>
-        <div class="byline">Customers CAN see me</div>
-      </span>
-    </button>
+    <!-- Sign-in gate: shown until a valid code is saved on this phone -->
+    <div class="gate" id="gate" style="display:none">
+      <p class="gate-title">Enter your driver code</p>
+      <p class="gate-sub">Type it once. This phone will remember it.</p>
+      <input class="code-input" id="codeInput" type="text" inputmode="text"
+             autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+             placeholder="Driver code" />
+      <button class="gate-btn" id="saveBtn" onclick="saveCode()">Save code</button>
+      <p class="gate-err" id="gateErr"></p>
+    </div>
 
-    <button class="btn btn-stop" id="btnStop" onclick="setSharing(false)">
-      <span class="emoji"><svg viewBox="0 0 32 32"><polygon points="11,3 21,3 29,11 29,21 21,29 11,29 3,21 3,11" fill="#E23E75" stroke="#7a1236" stroke-width="2.2" stroke-linejoin="round"/><rect x="9" y="14.6" width="14" height="2.8" rx="1.4" fill="#fff"/></svg></span>
-      <span>
-        <div class="label">Stop sharing</div>
-        <div class="byline">Customers CANNOT see me</div>
-      </span>
-    </button>
+    <!-- Driver controls: shown once a code is saved -->
+    <div id="controls" style="display:none">
+      <button class="btn btn-share" id="btnShare" onclick="setSharing(true)">
+        <span class="emoji"><svg viewBox="0 0 32 32"><path d="M16 4c-5 0-9 3.6-9 8.6 0 6 9 15.4 9 15.4s9-9.4 9-15.4c0-5-4-8.6-9-8.6z" fill="#fff" stroke="#0f3b2c" stroke-width="2.2" stroke-linejoin="round"/><circle cx="16" cy="12.6" r="3.3" fill="#1E9E76"/></svg></span>
+        <span>
+          <div class="label">Share my location</div>
+          <div class="byline">Customers CAN see me</div>
+        </span>
+      </button>
 
-    <p class="statusmsg" id="statusMsg">Checking your status&hellip;</p>
+      <button class="btn btn-stop" id="btnStop" onclick="setSharing(false)">
+        <span class="emoji"><svg viewBox="0 0 32 32"><polygon points="11,3 21,3 29,11 29,21 21,29 11,29 3,21 3,11" fill="#E23E75" stroke="#7a1236" stroke-width="2.2" stroke-linejoin="round"/><rect x="9" y="14.6" width="14" height="2.8" rx="1.4" fill="#fff"/></svg></span>
+        <span>
+          <div class="label">Stop sharing</div>
+          <div class="byline">Customers CANNOT see me</div>
+        </span>
+      </button>
+
+      <p class="statusmsg" id="statusMsg">Checking your status&hellip;</p>
+      <p class="change-code"><a onclick="changeCode()">Change code</a></p>
+    </div>
   </div>
 
 <script>
   var API = "https://penneys-truck.zeebanker.workers.dev";
-  var DRIVER_SECRET = "93ce530c4ef46479a2ae77606831e00b";
+  var LS_KEY = "awot_driver_code";
+
+  function getCode() { return localStorage.getItem(LS_KEY) || ""; }
+
+  function el(id) { return document.getElementById(id); }
+
+  function showGate(msg) {
+    el("gate").style.display = "block";
+    el("controls").style.display = "none";
+    el("gateErr").textContent = msg || "";
+    el("codeInput").value = "";
+    try { el("codeInput").focus(); } catch (e) {}
+  }
+
+  function showControls() {
+    el("gate").style.display = "none";
+    el("controls").style.display = "block";
+    loadState();
+  }
+
+  // Ask the Worker if a code is valid. true = valid, false = rejected (401),
+  // throws on a network problem.
+  async function verifyCode(code) {
+    var r = await fetch(API + "/verify", { method: "POST", headers: { "X-Secret": code } });
+    if (r.status === 401) return false;
+    if (!r.ok) throw new Error("net");
+    return true;
+  }
+
+  async function saveCode() {
+    var code = el("codeInput").value.trim();
+    if (!code) { el("gateErr").textContent = "Please type your code."; return; }
+    var btn = el("saveBtn");
+    btn.disabled = true; btn.textContent = "Checking…";
+    el("gateErr").textContent = "";
+    try {
+      var ok = await verifyCode(code);
+      if (ok) {
+        localStorage.setItem(LS_KEY, code);
+        showControls();
+      } else {
+        el("gateErr").textContent = "That code isn't right. Try again.";
+        el("codeInput").value = "";
+        el("codeInput").focus();
+      }
+    } catch (e) {
+      el("gateErr").textContent = "Can't reach the server. Try again.";
+    } finally {
+      btn.disabled = false; btn.textContent = "Save code";
+    }
+  }
+
+  function changeCode() {
+    localStorage.removeItem(LS_KEY);
+    showGate("");
+  }
 
   function paint(isOn) {
-    var share = document.getElementById("btnShare");
-    var stop = document.getElementById("btnStop");
-    var msg = document.getElementById("statusMsg");
+    var share = el("btnShare");
+    var stop = el("btnStop");
+    var msg = el("statusMsg");
     if (isOn) {
       // Sharing now: the live/next action is STOP.
       stop.classList.add("live");
@@ -160,7 +253,7 @@
       var d = await r.json();
       paint(d.sharing === 1);
     } catch (e) {
-      var msg = document.getElementById("statusMsg");
+      var msg = el("statusMsg");
       msg.className = "statusmsg off";
       msg.textContent = "Can't reach the truck server";
     }
@@ -169,17 +262,31 @@
   async function setSharing(on) {
     var path = on ? "/share" : "/disable";
     try {
-      var r = await fetch(API + path + "?secret=" + encodeURIComponent(DRIVER_SECRET), { method: "POST" });
+      var r = await fetch(API + path, { method: "POST", headers: { "X-Secret": getCode() } });
+      if (r.status === 401) {
+        // Saved code no longer works: clear it and ask again.
+        localStorage.removeItem(LS_KEY);
+        showGate("That code didn't work. Please enter it again.");
+        return;
+      }
       if (!r.ok) throw new Error("bad");
       paint(on);
     } catch (e) {
-      var msg = document.getElementById("statusMsg");
+      var msg = el("statusMsg");
       msg.className = "statusmsg off";
       msg.textContent = "Something went wrong. Try again.";
     }
   }
 
-  loadState();
+  // Submit the code with the Enter key too.
+  document.addEventListener("DOMContentLoaded", function () {
+    el("codeInput").addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); saveCode(); }
+    });
+  });
+
+  // Start: if this phone already has a code, go straight to the controls.
+  if (getCode()) { showControls(); } else { showGate(""); }
 </script>
 </body>
 </html>

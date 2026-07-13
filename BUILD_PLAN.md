@@ -146,8 +146,10 @@ Prove it works before showing Penny.
 
 Not needed for dev/testing among Pat and Penny; must be done before the public launch.
 
-- **Rebrand to "A Whale of a Treat!"** The truck is a real business: **A Whale of a Treat!** at `www.awhaleofatreat.com`, blue whale-popsicle logo. Both pages should carry the real name, logo, and matching colors instead of the "Penny's Truck" / ice-cream-cone placeholder theme. Option to serve the app from a custom subdomain of the owned domain (e.g. `track.awhaleofatreat.com`) and/or link it from the main site. (Design first: interactive mockups for review before building.)
-- **Driver auth at handover.** Swap the hard-coded driver secret for the passphrase-in-localStorage approach (see Security note / Settled decisions).
+- **Rebrand to "A Whale of a Treat!" - DONE (2026-07-13).** Both pages carry the whale logo, blue palette, and soft-pink boxes; whale-popsicle map marker. Assets in `docs/`.
+- **Custom domain - DONE (2026-07-13).** App is live at `awhaleofatreat.com` (and `/driver`) on Cloudflare Pages (project `awhaleofatreat`, direct wrangler deploy of `docs/`). See CLAUDE.md for the deploy command.
+- **Turn off the old GitHub Pages site.** Repo Settings -> Pages -> Source: None, so the app isn't also live at the old github.io URL.
+- **Driver auth at handover.** Swap the hard-coded driver secret for the passphrase-in-localStorage approach (see Security note / Settled decisions). More important now that the app is on a memorable public domain (`/driver` is guessable).
 - **Rotate the dev secrets** (`OWNTRACKS_SECRET`, `DRIVER_SECRET`) before handover.
 - **OwnTracks on Penny's Android phone.** Penny's phone is Android; Pat's iPhone stays the test device until handover. OwnTracks is cross-platform, so at handover configure OwnTracks on Android (HTTP mode, same `/owntracks` URL with the secret; Android has its own background-location and battery-optimization settings to allow).
 

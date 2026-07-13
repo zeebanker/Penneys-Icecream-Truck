@@ -40,6 +40,9 @@ export default {
       if (path === "/disable" && method === "POST") {
         return await handleToggle(request, env, url, 0);
       }
+      if (path === "/verify" && method === "POST") {
+        return await handleVerify(request, env, url);
+      }
       if (path === "/state" && method === "GET") {
         return await handleState(env);
       }
@@ -102,6 +105,15 @@ async function handleToggle(request, env, url, value) {
     "UPDATE truck_state SET sharing = ? WHERE id = 1"
   ).bind(value).run();
   return json({ status: "ok", sharing: value });
+}
+
+// The driver page checks whether a code is valid, WITHOUT changing anything.
+// Lets the passphrase entry give instant "code is right / wrong" feedback.
+async function handleVerify(request, env, url) {
+  if (!secretOk(request, url, env.DRIVER_SECRET)) {
+    return json({ error: "unauthorized" }, 401);
+  }
+  return json({ ok: true });
 }
 
 // The customer map asks: where is the truck, and is sharing on?
