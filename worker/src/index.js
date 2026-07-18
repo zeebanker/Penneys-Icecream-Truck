@@ -65,7 +65,7 @@ async function handleOwntracks(request, env, url) {
 
   // OwnTracks sends many message types; we only care about location reports.
   if (body._type && body._type !== "location") {
-    return json({ status: "ignored", type: body._type });
+    return owntracksOk();
   }
 
   const lat = Number(body.lat);
@@ -93,7 +93,16 @@ async function handleOwntracks(request, env, url) {
     "UPDATE truck_state SET lat = ?, lon = ?, updated_at = ?, moving = ? WHERE id = 1"
   ).bind(lat, lon, updatedAt, moving).run();
 
-  return json({ status: "ok", moving });
+  return owntracksOk();
+}
+
+// OwnTracks expects the HTTP response body to be a JSON ARRAY of messages to
+// deliver back to the phone (empty = nothing for you). Returning a plain object
+// makes the Android client throw "Failed to parse JSON" and re-queue the message,
+// which stalls further publishes. iOS is lenient about this; Android is not.
+// We never send commands to the phone, so always reply with an empty array.
+function owntracksOk() {
+  return json([]);
 }
 
 // The driver page flips sharing on (value = 1) or off (value = 0).

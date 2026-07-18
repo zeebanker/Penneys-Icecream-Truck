@@ -131,8 +131,6 @@
   .statusmsg.on  { color: var(--mint-dark); }
   .statusmsg.off { color: var(--pink-dark); }
 
-  .change-code { text-align: center; margin: 16px 0 0; }
-  .change-code a { color: var(--whale-dark); font-size: 13px; font-weight: 500; text-decoration: underline; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -169,7 +167,6 @@
       </button>
 
       <p class="statusmsg" id="statusMsg">Checking your status&hellip;</p>
-      <p class="change-code"><a onclick="changeCode()">Change code</a></p>
     </div>
   </div>
 
@@ -227,10 +224,11 @@
     }
   }
 
-  function changeCode() {
-    localStorage.removeItem(LS_KEY);
-    showGate("");
-  }
+  // NOTE: the "Change code" link was removed (2026-07-18) - it confused Penny and
+  // was redundant. A wrong code is never saved (saveCode verifies first), and if the
+  // code is ever rotated on the server, setSharing's 401 branch clears it and
+  // re-prompts automatically. To restore it: a link calling
+  // localStorage.removeItem(LS_KEY) then showGate("").
 
   function paint(isOn) {
     var share = el("btnShare");
