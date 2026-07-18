@@ -57,8 +57,8 @@ Truck icon reflects movement (parents' view only, display-only):
 
 ## Auth (dev stage vs. handover)
 
-- **Passphrase gate: DONE (2026-07-13).** The driver secret is NOT in the page source. `driver.html` shows an "Enter your driver code" gate; the code is saved in `localStorage` (`awot_driver_code`) and sent on `/share` `/disable` via the **`X-Secret` header** (not the URL). Worker `POST /verify` gives instant right/wrong feedback; a 401 clears the saved code and re-prompts; a "Change code" link clears it. `DRIVER_SECRET` = `whale2026` (dev value).
-- **At handover to Penny:** swap `whale2026` for Penny's own code with one `wrangler secret put DRIVER_SECRET` (no code change); she types it once on her Android.
+- **Passphrase gate: DONE (2026-07-13).** The driver secret is NOT in the page source. `driver.html` shows an "Enter your driver code" gate; the code is saved in `localStorage` (`awot_driver_code`) and sent on `/share` `/disable` via the **`X-Secret` header** (not the URL). Worker `POST /verify` gives instant right/wrong feedback; a 401 clears the saved code and re-prompts; a "Change code" link clears it.
+- **Secrets are set in Cloudflare only, never listed here (this repo is public).** Both `DRIVER_SECRET` and `OWNTRACKS_SECRET` were rotated to production values on 2026-07-17 (the old dev values are dead). To change the driver code later: one `wrangler secret put DRIVER_SECRET` (no code change); Penny types it once on her Android. Comparison is an exact case-sensitive string match (see `secretOk` in `worker/src/index.js`).
 
 ## Current status (2026-07-12)
 
@@ -72,12 +72,12 @@ Truck icon reflects movement (parents' view only, display-only):
 - **Custom domain `awhaleofatreat.com`: DONE, live (2026-07-13).** Front-end moved off GitHub Pages to a **Cloudflare Pages** project named **`awhaleofatreat`** (direct wrangler upload of `docs/`, NOT git-connected). Custom domains `awhaleofatreat.com` + `www.awhaleofatreat.com` attached with auto SSL (domain is in the same Cloudflare account). URLs: `awhaleofatreat.com` = customer map, `awhaleofatreat.com/driver` = driver page (Pages clean URLs; `/driver.html` 308-redirects to `/driver`). Deploy command (run from repo root, I run it): `npx wrangler pages deploy docs --project-name awhaleofatreat --branch master --commit-dirty=true`. Worker backend unchanged; CORS is `*` so the new origin reaches it fine.
 - **Old GitHub Pages: OFF (2026-07-13).** Repo Settings -> Pages -> Source: None; old github.io URLs 404. App lives only at the custom domain.
 - **Driver-auth passphrase swap: DONE, live-tested (2026-07-13).** See the Auth section above.
-- **Before go-live to-dos remaining:** rotate `OWNTRACKS_SECRET` (driver secret already rotated to `whale2026`); swap `whale2026` for Penny's own code at handover; configure OwnTracks on Penny's Android phone at handover. **Location fuzzing is dropped: Penny wants exact location shown (decided 2026-07-13).**
+- **Secret rotation: DONE (2026-07-17).** Both `DRIVER_SECRET` and `OWNTRACKS_SECRET` rotated to production values ahead of handover; the driver code was verified live (new code 200, old code 401, wrong-case 401) and the stale test broadcast was turned off. **Only handover to-do remaining:** configure OwnTracks on Penny's Android phone at handover (HTTP mode, the `/owntracks` URL with the new `OWNTRACKS_SECRET`, plus Android background-location + battery-optimization settings). **Location fuzzing is dropped: Penny wants exact location shown (decided 2026-07-13).**
 
-## Live dev secrets (dev stage only; rotate before handover)
+## Secrets
 
 - Worker URL: `https://penneys-truck.zeebanker.workers.dev`
-- `OWNTRACKS_SECRET` and `DRIVER_SECRET` are set in Cloudflare. `DRIVER_SECRET` = `whale2026` (rotated 2026-07-13; no longer in the page source, entered via the driver-page code gate). `OWNTRACKS_SECRET` still original; rotate before handover (also update the URL in the OwnTracks app).
+- `OWNTRACKS_SECRET` and `DRIVER_SECRET` are set in Cloudflare only. **This repo is public, so the actual values are NOT written here** (they live in the private handover note + the maintainer's memory). Both were rotated to production values 2026-07-17.
 
 ## Working preferences and design rules
 
